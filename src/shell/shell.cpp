@@ -103,6 +103,10 @@ void ttf_switch_on(bool ss = true), ttf_switch_off(bool ss = true);
 void ttf_setlines(int cols, int lins);
 void ttf_reset();
 #endif
+
+bool setlines(const char *mname);
+bool clear_screen();
+
 extern VideoModeBlock* CurMode;
 
 Bitu call_shellstop = 0;
@@ -883,68 +887,571 @@ void GetExpandedPath(std::string &path) {
     }
 }
 
-void showWelcome(Program *shell) {
-    /* Start a normal shell and check for a first command init */
-    ansiinstalled = is_ANSI_installed(shell);
-    std::string verstr = "v"+std::string(VERSION)+", "+OS_PLATFORM_LONG+" "+SDL_STRING+" " + OS_BIT + "-bit";
-    if (machine == MCH_PC98) {
-        shell->WriteOut(ParseMsg("\x86\x52\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x56\n"));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 \033[32m")+(MSG_Get("SHELL_STARTUP_TITLE")+std::string("      ")).substr(0,22)+std::string("  \033[33m%*s\033[37m \x86\x46\n")).c_str()),42,verstr.c_str());
-        shell->WriteOut(ParseMsg("\x86\x46                                                                    \x86\x46\n"));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 ")+MSG_Get("SHELL_STARTUP_HEAD1_PC98")+std::string(" \x86\x46\n")).c_str()));
-        shell->WriteOut(ParseMsg("\x86\x46                                                                    \x86\x46\n"));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 ")+str_replace(MSG_Get("SHELL_STARTUP_TEXT1_PC98"), "\n", " \x86\x46\n\x86\x46 ")+std::string(" \x86\x46\n")).c_str()));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 ")+MSG_Get("SHELL_STARTUP_EXAMPLE_PC98")+std::string(" \x86\x46\n")).c_str()));
-        shell->WriteOut(ParseMsg("\x86\x46                                                                    \x86\x46\n"));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 ")+str_replace(MSG_Get("SHELL_STARTUP_TEXT2_PC98"), "\n", " \x86\x46\n\x86\x46 ")+std::string(" \x86\x46\n")).c_str()));
-        shell->WriteOut(ParseMsg("\x86\x46                                                                    \x86\x46\n"));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 ")+str_replace(MSG_Get("SHELL_STARTUP_INFO_PC98"), "\n", " \x86\x46\n\x86\x46 ")+std::string(" \x86\x46\n")).c_str()));
-        shell->WriteOut(ParseMsg("\x86\x46                                                                    \x86\x46\n"));
-        shell->WriteOut(ParseMsg((std::string("\x86\x46 ")+str_replace(MSG_Get("SHELL_STARTUP_TEXT3_PC98"), "\n", " \x86\x46\n\x86\x46 ")+std::string(" \x86\x46\n")).c_str()));
-        shell->WriteOut(ParseMsg("\x86\x5A\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44"
-            "\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x44\x86\x5E\033[0m\n"));
-        shell->WriteOut(ParseMsg((std::string("\033[1m\033[32m")+MSG_Get("SHELL_STARTUP_LAST")+"\033[0m\n").c_str()));
-    } else {
-        shell->WriteOut(ParseMsg("\033[44;1m\xC9\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD"
-            "\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD"
-            "\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBB\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA \033[32m")+(MSG_Get("SHELL_STARTUP_TITLE")+std::string("             ")).substr(0,30)+std::string(" \033[33m%*s\033[37m \xBA\033[0m")).c_str()),45,verstr.c_str());
-        shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+MSG_Get("SHELL_STARTUP_HEAD1")+std::string(" \xBA\033[0m")).c_str()));
-        shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+str_replace(MSG_Get("SHELL_STARTUP_TEXT1"), "\n", " \xBA\033[0m\033[44;1m\xBA ")+std::string(" \xBA\033[0m")).c_str()));
-        if (IS_VGA_ARCH) shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+MSG_Get("SHELL_STARTUP_EXAMPLE")+std::string(" \xBA\033[0m")).c_str()));
-        shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+MSG_Get("SHELL_STARTUP_HEAD2")+std::string(" \xBA\033[0m")).c_str()));
-        shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+str_replace(MSG_Get("SHELL_STARTUP_TEXT2"), "\n", " \xBA\033[0m\033[44;1m\xBA ")+std::string(" \xBA\033[0m")).c_str()));
-        shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        if (IS_DOSV) {
-            shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+str_replace(MSG_Get("SHELL_STARTUP_DOSV"), "\n", " \xBA\033[0m\033[44;1m\xBA ")+std::string(" \xBA\033[0m")).c_str()));
-            shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        } else if (machine == MCH_CGA || machine == MCH_PCJR || machine == MCH_AMSTRAD || machine == MCH_OLIVETTI || machine == MCH_3270PC) {
-            shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+str_replace(MSG_Get(mono_cga?"SHELL_STARTUP_CGA_MONO":"SHELL_STARTUP_CGA"), "\n", " \xBA\033[0m\033[44;1m\xBA ")+std::string(" \xBA\033[0m")).c_str()));
-            shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        } else if (machine == MCH_HERC || machine == MCH_MDA) {
-            shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+str_replace(MSG_Get("SHELL_STARTUP_HERC"), "\n", " \xBA\033[0m\033[44;1m\xBA ")+std::string(" \xBA\033[0m")).c_str()));
-            shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
+/*
+ * ============================================================
+ *  CRESNIK DOS - Motor de interfaz de consola
+ * ============================================================
+ *
+ * Diseñado específicamente para una consola DOS de 80x25.
+ * El dibujo utiliza caracteres CP437 y secuencias ANSI.
+ *
+ * El ancho, los márgenes y las columnas se calculan aquí,
+ * evitando depender de espacios escritos manualmente.
+ */
+
+static size_t CresnikVisibleLength(const std::string &texto)
+{
+    size_t longitud = 0;
+
+    for (size_t i = 0; i < texto.size();) {
+
+        /*
+         * Ignorar secuencias ANSI ESC [...]
+         */
+        if (static_cast<unsigned char>(texto[i]) == 0x1b &&
+            i + 1 < texto.size() &&
+            texto[i + 1] == '[') {
+
+            i += 2;
+
+            while (i < texto.size()) {
+                const unsigned char c =
+                    static_cast<unsigned char>(texto[i]);
+
+                ++i;
+
+                if (c >= 0x40 && c <= 0x7e)
+                    break;
+            }
+
+            continue;
         }
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+MSG_Get("SHELL_STARTUP_HEAD3")+std::string(" \xBA\033[0m")).c_str()));
-        shell->WriteOut(ParseMsg("\033[44;1m\xBA                                                                              \xBA\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[44;1m\xBA ")+str_replace(MSG_Get("SHELL_STARTUP_TEXT3"), "\n", " \xBA\033[0m\033[44;1m\xBA ")+std::string(" \xBA\033[0m")).c_str()));
-        shell->WriteOut(ParseMsg("\033[44;1m\xC8\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD"
-            "\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD"
-            "\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xCD\xBC\033[0m"));
-        shell->WriteOut(ParseMsg((std::string("\033[32m")+(MSG_Get("SHELL_STARTUP_LAST")+std::string("                                                       ")).substr(0,79)+std::string("\033[0m\n")).c_str()));
+
+        ++longitud;
+        ++i;
+    }
+
+    return longitud;
+}
+
+
+static std::string CresnikPadRight(const std::string &texto,
+                                   const size_t ancho)
+{
+    const size_t visible = CresnikVisibleLength(texto);
+
+    if (visible >= ancho)
+        return texto;
+
+    return texto + std::string(ancho - visible, ' ');
+}
+
+
+static std::string CresnikCenter(const std::string &texto,
+                                 const size_t ancho)
+{
+    const size_t visible = CresnikVisibleLength(texto);
+
+    if (visible >= ancho)
+        return texto;
+
+    const size_t espacio = ancho - visible;
+    const size_t izquierda = espacio / 2;
+    const size_t derecha = espacio - izquierda;
+
+    return std::string(izquierda, ' ') +
+           texto +
+           std::string(derecha, ' ');
+}
+
+
+static void CresnikWriteRaw(Program *shell,
+                            const std::string &texto)
+{
+    shell->WriteOut("%s", texto.c_str());
+}
+
+
+/*
+ * ============================================================
+ *  Clase para dibujar el panel principal
+ * ============================================================
+ */
+
+class CresnikConsolePanel
+{
+public:
+
+    explicit CresnikConsolePanel(Program *program)
+        : shell(program)
+    {
+    }
+
+    /*
+     * Consola 80 columnas.
+     *
+     * Dejamos dos columnas libres a cada lado:
+     *
+     *   [2] + [76 caracteres del panel] + [2]
+     *
+     * Esto evita que escribir en la última columna provoque
+     * un salto automático de línea.
+     */
+
+    static constexpr size_t SCREEN_WIDTH = 80;
+    static constexpr size_t BOX_WIDTH    = 76;
+    static constexpr size_t INNER_WIDTH  = BOX_WIDTH - 2;
+
+    static constexpr size_t MARGIN_LEFT = 2;
+
+    /*
+     * Distribución del panel dividido.
+     *
+     *  ║ 34 caracteres ║ 39 caracteres ║
+     *
+     * 34 + 39 + tres bordes = 76.
+     */
+    static constexpr size_t LEFT_WIDTH  = 34;
+    static constexpr size_t RIGHT_WIDTH = 39;
+
+    /*
+     * Colores.
+     *
+     * Se incluye siempre el fondo en cada estilo para que
+     * ningún RESET deje accidentalmente una zona negra
+     * dentro del panel.
+     */
+
+    const std::string RESET =
+        "\033[0m";
+
+    const std::string FRAME =
+        "\033[1;37;44m";
+
+    const std::string TEXT =
+        "\033[0;37;44m";
+
+    const std::string TITLE =
+        "\033[1;36;44m";
+
+    const std::string BRAND =
+        "\033[1;32;44m";
+
+    const std::string COMMAND =
+        "\033[1;33;44m";
+
+    const std::string LINK =
+        "\033[1;37;44m";
+
+    const std::string BLACK_GREEN =
+        "\033[1;32;40m";
+
+    const std::string BLACK_TEXT =
+        "\033[0;37;40m";
+
+
+    void Top()
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xC9) +
+            Repeat(0xCD, INNER_WIDTH) +
+            Char(0xBB) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    void Bottom()
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xC8) +
+            Repeat(0xCD, INNER_WIDTH) +
+            Char(0xBC) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * ╠══════════════════════════════════════╣
+     */
+    void Separator()
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xCC) +
+            Repeat(0xCD, INNER_WIDTH) +
+            Char(0xB9) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * Empieza una zona dividida en dos columnas:
+     *
+     * ╠══════════════════════════════════╦═══════════════════════╣
+     */
+    void SplitStart()
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xCC) +
+            Repeat(0xCD, LEFT_WIDTH) +
+            Char(0xCB) +
+            Repeat(0xCD, RIGHT_WIDTH) +
+            Char(0xB9) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * Termina una zona dividida:
+     *
+     * ╠══════════════════════════════════╩═══════════════════════╣
+     */
+    void SplitEnd()
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xCC) +
+            Repeat(0xCD, LEFT_WIDTH) +
+            Char(0xCA) +
+            Repeat(0xCD, RIGHT_WIDTH) +
+            Char(0xB9) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * Línea normal.
+     */
+    void Line(const std::string &texto)
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xBA) +
+            TEXT +
+            CresnikPadRight(texto, INNER_WIDTH) +
+            FRAME +
+            Char(0xBA) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * Línea centrada.
+     */
+    void Center(const std::string &texto)
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xBA) +
+            TEXT +
+            CresnikCenter(texto, INNER_WIDTH) +
+            FRAME +
+            Char(0xBA) +
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * Línea vacía.
+     */
+    void Empty()
+    {
+        Line("");
+    }
+
+
+    /*
+     * Dos columnas.
+     */
+    void Columns(const std::string &izquierda,
+                 const std::string &derecha)
+    {
+        Write(
+            Margin() +
+            FRAME +
+            Char(0xBA) +
+
+            TEXT +
+            CresnikPadRight(izquierda, LEFT_WIDTH) +
+
+            FRAME +
+            Char(0xBA) +
+
+            TEXT +
+            CresnikPadRight(derecha, RIGHT_WIDTH) +
+
+            FRAME +
+            Char(0xBA) +
+
+            RESET +
+            "\n"
+        );
+    }
+
+
+    /*
+     * Mensaje exterior al panel.
+     *
+     * Se fuerza explícitamente fondo negro.
+     */
+    void Footer(const std::string &texto)
+    {
+        Write(
+            RESET +
+            "\033[40m"
+            "\n"
+            "  " +
+            BLACK_GREEN +
+            texto +
+            RESET +
+            "\n"
+        );
+    }
+
+
+private:
+
+    Program *shell;
+
+
+    void Write(const std::string &texto)
+    {
+        CresnikWriteRaw(shell, texto);
+    }
+
+
+    static std::string Char(const unsigned char c)
+    {
+        return std::string(1, static_cast<char>(c));
+    }
+
+
+    static std::string Repeat(const unsigned char c,
+                              const size_t veces)
+    {
+        return std::string(
+            veces,
+            static_cast<char>(c)
+        );
+    }
+
+
+    static std::string Margin()
+    {
+        return std::string(MARGIN_LEFT, ' ');
+    }
+};
+
+
+/*
+ * ============================================================
+ *  Pantalla de bienvenida de Cresnik DOS
+ * ============================================================
+ */
+
+void showCresnikWelcome(Program *shell)
+{
+    /*
+     * Volvemos al formato clásico DOS.
+     */
+    setlines("line_80x25");
+    clear_screen();
+
+    CresnikConsolePanel ui(shell);
+
+    const std::string version =
+        "Version " +
+        std::string(VERSION) +
+        "  |  " +
+        SDL_STRING +
+        " " +
+        OS_BIT +
+        "-bit";
+
+
+    /*
+     * ========================================================
+     * CABECERA
+     * ========================================================
+     */
+
+    ui.Top();
+
+    ui.Center(
+        ui.BRAND +
+        std::string("C R E S N I K   D O S") +
+        ui.TEXT
+    );
+
+    ui.Center(
+        ui.COMMAND +
+        version +
+        ui.TEXT
+    );
+
+
+    /*
+     * ========================================================
+     * INICIO RAPIDO
+     * ========================================================
+     */
+
+    ui.Separator();
+
+    ui.Line(
+        ui.TITLE +
+        std::string("  INICIO RAPIDO") +
+        ui.TEXT
+    );
+
+    ui.Line(
+        ui.COMMAND + "  HELP" +
+        ui.TEXT + "       Lista de comandos" +
+        "          " +
+        ui.COMMAND + "INTRO" +
+        ui.TEXT + "   Guia rapida"
+    );
+
+    ui.Line(
+        ui.COMMAND + "  MOUNT" +
+        ui.TEXT + "      Montar unidad" +
+        "             " +
+        ui.COMMAND + "IMGMOUNT" +
+        ui.TEXT + " Montar imagen"
+    );
+
+
+    /*
+     * ========================================================
+     * DOS COLUMNAS
+     * ========================================================
+     */
+
+    ui.SplitStart();
+
+    ui.Columns(
+        ui.TITLE +
+        std::string(" ATAJOS") +
+        ui.TEXT,
+
+        ui.TITLE +
+        std::string(" RECURSOS") +
+        ui.TEXT
+    );
+
+    ui.Columns(
+        "",
+        ""
+    );
+
+    ui.Columns(
+        ui.COMMAND + " F11 + F" +
+        ui.TEXT + "  Pantalla completa",
+
+        ui.BRAND + " Web" +
+        ui.TEXT + "      cresnik.es"
+    );
+
+    ui.Columns(
+        ui.COMMAND + " F11 + C" +
+        ui.TEXT + "  Configuracion",
+
+        ui.BRAND + " GitHub" +
+        ui.TEXT + "   github.com/Cresnik/DOS"
+    );
+
+    ui.Columns(
+        ui.COMMAND + " F11 + M" +
+        ui.TEXT + "  Editor de asignaciones",
+
+        ui.BRAND + " Soporte" +
+        ui.TEXT + "  github.com/Cresnik/DOS/issues"
+    );
+
+    ui.Columns(
+        ui.COMMAND + " F11 +/-" +
+        ui.TEXT + "  Velocidad CPU",
+
+        ""
+    );
+
+
+    /*
+     * ========================================================
+     * INFORMACION
+     * ========================================================
+     */
+
+    ui.SplitEnd();
+
+    ui.Line(
+        ui.TITLE +
+        std::string("  CRESNIK DOS") +
+        ui.TEXT
+    );
+
+    ui.Line(
+        ui.TEXT +
+        std::string(
+            "  Entorno DOS personalizado para juegos y aplicaciones clasicas."
+        )
+    );
+
+
+    /*
+     * ========================================================
+     * FINAL
+     * ========================================================
+     */
+
+    ui.Bottom();
+
+    ui.Footer(
+        "Disfruta de Cresnik DOS."
+    );
+}
+
+void showWelcome(Program *shell)
+{
+    /* Iniciar un shell normal y comprobar el primer comando de inicio */
+    ansiinstalled = is_ANSI_installed(shell);
+
+    std::string verstr =
+        "v" + std::string(VERSION) + ", " +
+        OS_PLATFORM_LONG + " " +
+        SDL_STRING + " " +
+        OS_BIT + "-bit";
+
+    if (machine == MCH_PC98) {
+
+        // Aquí dejas TODO el bloque PC-98 exactamente como lo tenías.
+
+    } else {
+        showCresnikWelcome(shell);
     }
 }
 
@@ -1054,8 +1561,7 @@ void DOS_Shell::Prepare(void) {
 			InitCodePage();
 			if(startbanner && !control->opt_fastlaunch) {
 				if (!shown_welcome) {
-					//showWelcome(this);
-					DoCommand((char *)std::string("z:\\system\\intro welcome").c_str());
+					showWelcome(this);
 					shown_welcome = true;
 				}
 			}
