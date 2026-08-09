@@ -1103,7 +1103,7 @@ void GFX_SetIcon(void)
 #if defined(WIN32) && !defined(C_SDL2)
     HICON hIcon1;
 
-    hIcon1 = (HICON) LoadImage( GetModuleHandle(NULL), MAKEINTRESOURCE(dosbox_ico), IMAGE_ICON,
+    hIcon1 = (HICON) LoadImage( GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_CRESNIK_BAR), IMAGE_ICON,
         16,16,LR_DEFAULTSIZE);
 
     SendMessage(GetHWND(), WM_SETICON, ICON_SMALL, (LPARAM) hIcon1 );
@@ -1135,7 +1135,7 @@ void GFX_SetTitle(int32_t cycles, int frameskip, Bits timing, bool paused) {
 #ifdef C_OSFREE
     constexpr const char* dosbox_name = "DOSBox-X OSFREE";
 #else
-    constexpr const char* dosbox_name = "DOSBox-X";
+    constexpr const char* dosbox_name = "Cresnik DOS";
 #endif
 
     bool showbasic = section->Get_bool("showbasic");
@@ -1178,7 +1178,7 @@ void GFX_SetTitle(int32_t cycles, int frameskip, Bits timing, bool paused) {
     if (sdl.mouse.locked) {
         std::string get_mapper_shortcut(const char *name);
         std::string key=get_mapper_shortcut("capmouse");
-        strcat(title, key.size()?(" ["+key+" releases mouse]").c_str():" [mouse locked]");
+        strcat(title, key.size()?(" ["+key+" para liberar el ratón]").c_str():" [ratón capturado]");
     }
 
     if (paused) strcat(title," PAUSED");
@@ -4336,7 +4336,7 @@ static void GUI_StartUp() {
 #endif
 
 #if defined(C_SDL2)
-    SDL_SetWindowTitle(sdl.window,"DOSBox-X");
+    SDL_SetWindowTitle(sdl.window,"Cresnik DOS");
     if (posx >= 0 && posy >= 0) {
 #if WIN32
         HWND hwnd = GetHWND();
@@ -4375,7 +4375,7 @@ static void GUI_StartUp() {
 #endif
     }
 #else
-    SDL_WM_SetCaption("DOSBox-X",VERSION);
+    SDL_WM_SetCaption("Cresnik DOS",VERSION);
 #endif
 
 #if defined(C_SDL2)
@@ -9503,7 +9503,7 @@ int main(int argc, char* argv[]) SDL_MAIN_NOEXCEPT {
             menu.gui=false;
 
         /* -- -- helpful advice */
-        LOG(LOG_GUI,LOG_NORMAL)("Press Ctrl-F10 to capture/release mouse, Alt-F10 for configuration.");
+        LOG(LOG_GUI,LOG_NORMAL)("Pulsa Ctrl-F10 para capturar/liberar el ratón, Alt-F10 para la configuración.");
 
         /* -- -- other steps to prepare SDL window/output */
         SDL_Prepare();
