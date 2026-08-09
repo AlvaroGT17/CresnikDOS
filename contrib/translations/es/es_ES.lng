@@ -1937,6 +1937,7 @@ Los modificadores también pueden definirse mediante la variable de entorno DIRC
 
 Para anular una opción establecida en DIRCMD, antepón un guion.
 Ejemplo: /-W
+
 .
 :SHELL_CMD_ECHO_HELP
 Muestra mensajes o activa y desactiva la repetición de comandos.

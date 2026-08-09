@@ -299,6 +299,7 @@ extern "C" void sdl1_hax_macosx_highdpi_set_enable(const bool enable);
 #include "sdlmain.h"
 #include "build_timestamp.h"
 #include "version_string.h"
+#include "cresnik_version.h"
 
 #if C_OPENGL
 namespace gl2 {
@@ -1123,6 +1124,39 @@ void GFX_SetTitle(int32_t cycles, int frameskip, Bits timing, bool paused) {
     static int32_t internal_cycles=0;
 //  static Bits internal_timing=0;
     char title[250] = {0};
+	
+	const bool mostrar_programa =
+		!RunningProgram.empty() &&
+		RunningProgram != "COMMAND" &&
+		RunningProgram != "4DOS" &&
+		RunningProgram != "DOSBOX-X";
+
+	if (mostrar_programa) {
+		snprintf(
+			title,
+			sizeof(title),
+			"%s %s - %s",
+			CRESNIK_NAME,
+			CRESNIK_VERSION,
+			RunningProgram.c_str()
+		);
+	} else {
+		snprintf(
+			title,
+			sizeof(title),
+			"%s %s",
+			CRESNIK_NAME,
+			CRESNIK_VERSION
+		);
+	}
+
+	#if defined(C_SDL2)
+	SDL_SetWindowTitle(sdl.window, title);
+	#else
+	SDL_WM_SetCaption(title, CRESNIK_NAME);
+	#endif
+
+	return;
 
     Section_prop *section = static_cast<Section_prop *>(control->GetSection("SDL"));
     assert(section != NULL);

@@ -50,6 +50,7 @@
 #endif
 #include "build_timestamp.h"
 #include "version_string.h"
+#include "cresnik_version.h"
 
 /* if any step requires bringing up the command prompt for the CONFIG shell, set to true */
 bool config_shell_run = false;
@@ -1285,7 +1286,7 @@ void showCresnikWelcome(Program *shell)
 
     const std::string version =
         "Version " +
-        std::string(VERSION) +
+        std::string(CRESNIK_VERSION) +
         "  |  " +
         SDL_STRING +
         " " +
@@ -1302,10 +1303,10 @@ void showCresnikWelcome(Program *shell)
     ui.Top();
 
     ui.Center(
-        ui.BRAND +
-        std::string("C R E S N I K   D O S") +
-        ui.TEXT
-    );
+		ui.BRAND +
+		std::string(CRESNIK_NAME) +
+		ui.TEXT
+	);
 
     ui.Center(
         ui.COMMAND +
@@ -1440,15 +1441,9 @@ void showWelcome(Program *shell)
     /* Iniciar un shell normal y comprobar el primer comando de inicio */
     ansiinstalled = is_ANSI_installed(shell);
 
-    std::string verstr =
-        "v" + std::string(VERSION) + ", " +
-        OS_PLATFORM_LONG + " " +
-        SDL_STRING + " " +
-        OS_BIT + "-bit";
-
     if (machine == MCH_PC98) {
 
-        // Aquí dejas TODO el bloque PC-98 exactamente como lo tenías.
+        // Aquí recuperaremos más adelante la bienvenida PC-98 original.
 
     } else {
         showCresnikWelcome(shell);
